@@ -1,9 +1,14 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 USER root
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 # Add dependencies
-RUN apt-get update && apt-get install -y libxml2 libxml2-dev libcurl4-gnutls-dev r-cran-rgl git libssl-dev curl
+RUN apt-get update && apt-get install -y libxml2 libxml2-dev 
+RUN apt-get update && apt-get install -y libcurl4-gnutls-dev libssl-dev curl
+RUN apt-get update && apt-get install -y git curl
+RUN apt-get update && apt-get install -y r-cran-rgl
 
 RUN mkdir /tmp/downloads
 
@@ -31,8 +36,19 @@ RUN curl -sSL -o tmp.tar.gz --retry 10 https://mathgen.stats.ox.ac.uk/impute/imp
     cp /tmp/downloads/impute2/impute2 /usr/local/bin && \
     rm -rf /tmp/downloads/impute2 /tmp/downloads/tmp.tar.gz
 
-RUN R -q -e 'source("http://bioconductor.org/biocLite.R"); biocLite(c("gtools", "optparse", "devtools","RColorBrewer","ggplot2","gridExtra","readr","doParallel","foreach", "splines"))'
-RUN R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT")'
+RUN R -e 'install.packages("BiocManager"); library("BiocManager")'
+RUN R -e 'BiocManager::install("remotes"); library("remotes")'
+RUN R -e 'BiocManager::install("gtools"); library("gtools")'
+RUN R -e 'BiocManager::install("optparse"); library("optparse")'
+RUN R -e 'BiocManager::install("devtools"); library("devtools")'
+RUN R -e 'BiocManager::install("RColorBrewer"); library("RColorBrewer")'
+RUN R -e 'BiocManager::install("ggplot2"); library("ggplot2")'
+RUN R -e 'BiocManager::install("gridExtra"); library("gridExtra")'
+RUN R -e 'BiocManager::install("readr"); library("readr")'
+RUN R -e 'BiocManager::install("doParallel"); library("doParallel")'
+RUN R -e 'BiocManager::install("foreach"); library("foreach")'
+RUN R -e 'BiocManager::install("splines"); library("splines")'
+RUN R -e 'BiocManager::install("Crick-CancerGenomics/ascat/ASCAT"); library("ASCAT")'
 
 RUN mkdir -p /opt/battenberg
 COPY . /opt/battenberg/
